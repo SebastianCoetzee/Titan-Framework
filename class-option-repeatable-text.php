@@ -12,61 +12,115 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
 		'unit' => ''
 	);
         
+        /**
+	 * Constructor
+	 */
+	function __construct( $settings, $owner ) {
+		parent::__construct( $settings, $owner );
+
+		add_action( 'admin_head', array( __CLASS__, 'createScripts' ) );
+	}
+        
         private function openFormTable(){
-            ?>
-            <table class="form-table tf-form-table">
-                <tbody>
-            <?php
+                ?>
+                <table class="form-table tf-form-table">
+                    <tbody>
+                <?php
         }
+        
+        private function closeFormTable(){
+                ?>
+                    </tbody>
+                </table>
+                <?php
+        }
+        
+        /**
+         * Creates the actions that allow the text fields to be repeated and removed.
+         */
+	public static function createScripts() {
+		?>
+		<script>
+		jQuery(document).ready(function($) {
+			$('.tf-repeatable-text tbody tr td .dashicons-no').click(function() {
+				$(this).parent().parent().remove();
+                                $('.tf-repeatable-text tbody tr').each( 
+                                        function( index ){
+                                                var $this = $(this);
+                                                var meta_key = $this.attr('tf-repeatable-text-id');
+                                                $this.find('label').attr('for', meta_key + '[' + index + ']').text('Field ' + (index + 1));
+                                                $this.find('input').attr('name', meta_key + '[' + index + ']').attr('id', meta_key + '[' + index + ']');
+                                        }
+                                );
+			});
+                        
+                        $('.tf-repeatable-text-button').click(
+                                function(){
+                                        
+                                }
+                        );
+		});
+		</script>
+		<?php
+	}
         
 	/*
 	 * Display for options and meta
 	 */
 	public function display() {
-		$this->echoOptionHeader();
                 
-                $ID = $this->getID() . '[0]';
-                $placeholder = $this->settings['placeholder'];
+                $ID = $this->getID();
                 $maxlength = $this->settings['maxlength'];
                 $value = $this->getValue();
+                $unit = $this->settings['unit'];
                 
+		$this->echoOptionHeader();
                 $this->openFormTable();
+                
+                foreach ($value as $index => $val):
+                
+                        $meta_key = $this->getID() . "[$index]";
+                
+                        ?>
+                        <tr valign="top" tf-repeatable-text-id="<?php echo $ID; ?>">
+                                <th scope="row">
+                                        <label for="<?php echo $meta_key;?>">Field <?php echo $index + 1;?></label>
+                                </th>
+                                <td>
+                                        <?php
+                                        printf("<input class=\"regular-text\" name=\"%s\" placeholder=\"%s\" maxlength=\"%s\" id=\"%s\" type=\"%s\" value=\"%s\"\> %s",
+                                        $meta_key,
+                                        $this->settings['placeholder'],
+                                        $this->settings['maxlength'],
+                                        $meta_key,
+                                        $this->settings['is_password'] ? 'password' : 'text',
+                                        esc_attr( $val ), 
+                                        $this->settings['unit'] 
+                                        );
+                                        ?>
+                                        <div class="dashicons dashicons-no"></div>
+                                </td>
+                        </tr>
+                <?php
+                
+                endforeach;
+                
                 ?>
                 
-                    
-        <tr valign="top" style="padding-top: 0px;">
-            <th scope="row" style="padding-top: inherit;">
-                <label for="<?php echo $ID;?>">Line 1</label>
-            </th>
-            <td style="padding-top: inherit;">
-            <?php echo "<input class=\"regular-text\" name=\"$ID\" placeholder=\"$placeholder\" maxlength=\"$maxlength\" id=\"\" type=\"text\" value=\"\"\>";?>
-            </td>
-        </tr>
-        <?php 
-            $ID = $this->getID() . '[1]';
-            $placeholder = $this->settings['placeholder'];
-            $maxlength = $this->settings['maxlength'];
-            $value = esc_attr( $this->getValue() );
-        ?>
-        <tr valign="top" style="padding-top: 0px;">
-            <th scope="row" style="padding-top: inherit;">
-                <label for="<?php echo $ID;?>">Line 2</label>
-            </th>
-            <td style="padding-top: inherit;">
-            <?php echo "<input class=\"regular-text\" name=\"$ID\" placeholder=\"$placeholder\" maxlength=\"$maxlength\" id=\"\" type=\"text\" value=\"\"\>";?>
-            </td>
-        </tr>
-        <tr valign="top" style="padding-top: 0px;">
-            <td style="padding-top: inherit;padding-left:0px;"><a class="button">Add Line</a></td>
-        </tr>
-    </tbody>
-</table><?php
+                <tr valign="top">
+                    <td><a class="button tf-repeatable-text-button">Add Text Field</a></td>
+                </tr>
+                
+                <?php
+            
+                $this->closeFormTable();
 		$this->echoOptionFooter();
+                
 	}
 
 	public function cleanValueForSaving( $value ){
                 foreach ($value as $index => $val){
-                    $value[$index] = sanitize_text_field($val);
+                        $value[$index] = sanitize_text_field($val);
                 }
 		if( !empty( $this->settings['sanitize_callbacks'] ) ){
 			foreach( $this->settings['sanitize_callbacks'] as $callback ){
