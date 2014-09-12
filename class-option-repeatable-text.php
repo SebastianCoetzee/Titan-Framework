@@ -41,22 +41,53 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
 	public static function createScripts() {
 		?>
 		<script>
+                var tf_repeatable_text_init, tf_repeatable_text_renumber;
+                        
 		jQuery(document).ready(function($) {
-			$('.tf-repeatable-text tbody tr td .dashicons-no').click(function() {
-				$(this).parent().parent().remove();
-                                $('.tf-repeatable-text tbody tr').each( 
+			
+                        tf_repeatable_text_init = function(){
+                                $('.tf-repeatable-text tbody tr td .dashicons-no').click(function() {
+                                        $(this).parent().parent().remove();
+                                        tf_repeatable_text_renumber();
+                                });
+                        };
+                        
+                        tf_repeatable_text_renumber = function(){$('.tf-repeatable-text tbody tr').each( 
                                         function( index ){
                                                 var $this = $(this);
-                                                var meta_key = $this.attr('tf-repeatable-text-id');
-                                                $this.find('label').attr('for', meta_key + '[' + index + ']').text('Field ' + (index + 1));
-                                                $this.find('input').attr('name', meta_key + '[' + index + ']').attr('id', meta_key + '[' + index + ']');
+                                                var id = $this.attr('tf-repeatable-text-id');
+                                                $this.find('label').attr('for', id + '[' + index + ']').text('Field ' + (index + 1));
+                                                $this.find('input').attr('name', id + '[' + index + ']').attr('id', id + '[' + index + ']');
                                         }
                                 );
-			});
+                        };
+                        
+                        
+                        tf_repeatable_text_init();
                         
                         $('.tf-repeatable-text-button').click(
                                 function(){
+                                        var $this = $(this);
+                                        var id = $this.attr('tf-repeatable-text-id');
+                                        var maxlength = $this.attr('tf-repeatable-text-maxlength');
+                                        var type = $this.attr('tf-repeatable-text-type');
+                                        var placeholder = $this.attr('tf-repeatable-text-placeholder');
+                                        var unit = $this.attr('tf-repeatable-text-unit');
                                         
+                                        var new_element;
+                                        new_element +=  "<tr valign=\"top\" tf-repeatable-text-id=\"" + id + "\">";
+                                        new_element +=          "<th scope=\"row\">";
+                                        new_element +=                  "<label></label>";
+                                        new_element +=          "</th>";
+                                        new_element +=          "<td>";
+                                        new_element +=                  "<input class=\"regular-text\" placeholder=\"" + placeholder + "\" maxlength=\"" + maxlength + "\" id=\"" + id + "\" type=\"" + type + "\" \> " + unit;
+                                        new_element +=                  "<div class=\"dashicons dashicons-no\"  style=\"font-size: 30px; cursor: pointer; margin-left: 20px;\"></div>";
+                                        new_element +=          "</td>";
+                                        new_element +=  "</tr>";
+                                        
+                                        $this.parent().parent().before( new_element );
+                                        tf_repeatable_text_init();
+                                        tf_repeatable_text_renumber();
                                 }
                         );
 		});
@@ -98,7 +129,7 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                                         $this->settings['unit'] 
                                         );
                                         ?>
-                                        <div class="dashicons dashicons-no"></div>
+                                        <div class="dashicons dashicons-no" style="font-size: 30px; cursor: pointer; margin-left: 20px;"></div>
                                 </td>
                         </tr>
                 <?php
@@ -108,7 +139,7 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                 ?>
                 
                 <tr valign="top">
-                    <td><a class="button tf-repeatable-text-button">Add Text Field</a></td>
+                    <td><a class="button tf-repeatable-text-button"  tf-repeatable-text-id="<?php echo $ID; ?>" tf-repeatable-text-index="<?php echo $index; ?>" tf-repeatable-text-placeholder="<?php echo $this->settings['placeholder']; ?>" tf-repeatable-text-type="<?php echo $this->settings['is_password'] ? 'password' : 'text' ?>" tf-repeatable-text-maxlength="<?php echo $this->settings['maxlength']; ?>" tf-repeatable-text-unit="<?php echo $this->settings['unit']; ?>">Add Text Field</a></td>
                 </tr>
                 
                 <?php
