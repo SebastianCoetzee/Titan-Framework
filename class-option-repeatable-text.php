@@ -57,12 +57,25 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                         
                         //Renumber all the labels and 'name' attributes of the inputs of the repeatable text fields 
                         tf_repeatable_text_renumber = function(){
-                                $('.tf-repeatable-text tbody tr').each( 
-                                        function( index ){
+                                
+                                var counter = 0;
+                                var current_id = '';
+                                
+                                $('.tf-repeatable-text tbody tr').each(
+                                        function(){
                                                 var $this = $(this);
+                                                
                                                 var id = $this.attr('tf-repeatable-text-id');
-                                                $this.find('label').attr('for', id + '[' + index + ']').text('Field ' + (index + 1));
-                                                $this.find('input').attr('name', id + '[' + index + ']').attr('id', id + '[' + index + ']');
+                                                if (current_id != id){
+                                                        counter = 0;
+                                                }
+                                                current_id = id;
+                                                
+                                                var field_name = $this.attr('tf-repeatable-text-field-name');
+                                                
+                                                $this.find('label').attr('for', id + '[' + counter + ']').text(field_name + ' ' + (counter + 1));
+                                                $this.find('input').attr('name', id + '[' + counter + ']').attr('id', id + '[' + counter + ']');
+                                                counter++;
                                         }
                                 );
                         };
@@ -80,9 +93,10 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                                         var type = $this.attr('tf-repeatable-text-type');
                                         var placeholder = $this.attr('tf-repeatable-text-placeholder');
                                         var unit = $this.attr('tf-repeatable-text-unit');
+                                        var field_name = $this.attr('tf-repeatable-text-field-name');
                                         
                                         var new_element;
-                                        new_element +=  "<tr valign=\"top\" tf-repeatable-text-id=\"" + id + "\">";
+                                        new_element +=  "<tr valign=\"top\" tf-repeatable-text-id=\"" + id + "\" tf-repeatable-text-field-name=\"" + field_name + "\">";
                                         new_element +=          "<th scope=\"row\">";
                                         new_element +=                  "<label></label>";
                                         new_element +=          "</th>";
@@ -127,7 +141,7 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                         $meta_key = $this->getID() . "[$index]";
 
                         ?>
-                        <tr valign="top" tf-repeatable-text-id="<?php echo $ID; ?>">
+                        <tr valign="top" tf-repeatable-text-id="<?php echo $ID; ?>" tf-repeatable-text-field-name="<?php echo $field_name; ?>">
                                 <th scope="row">
                                         <label for="<?php echo $meta_key;?>"><?php echo $field_name . ' ' . ($index + 1);?></label>
                                 </th>
@@ -162,6 +176,7 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                                         tf-repeatable-text-type="<?php echo $this->settings['is_password'] ? 'password' : 'text' ?>" 
                                         tf-repeatable-text-maxlength="<?php echo $this->settings['maxlength']; ?>" 
                                         tf-repeatable-text-unit="<?php echo $this->settings['unit']; ?>"
+                                        tf-repeatable-text-field-name="<?php echo $field_name; ?>"
                                 >
                                         Add Text Field
                                 </a>
