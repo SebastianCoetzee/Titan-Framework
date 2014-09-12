@@ -9,7 +9,8 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
 		'is_password' => false,
 		'sanitize_callbacks' => array(),
 		'maxlength' => '',
-		'unit' => ''
+		'unit' => '',
+                'field_label' => 'Field'
 	);
         
         /**
@@ -36,15 +37,17 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
         }
         
         /**
-         * Creates the actions that allow the text fields to be repeated and removed.
-         */
+                * Creates the actions that allow the text fields to be repeated and removed.
+                */
 	public static function createScripts() {
 		?>
 		<script>
+                //Define the function variables in the global space so that they can be used again later.
                 var tf_repeatable_text_init, tf_repeatable_text_renumber;
                         
 		jQuery(document).ready(function($) {
 			
+                        //Binds the actions to the click event of the remove icons.
                         tf_repeatable_text_init = function(){
                                 $('.tf-repeatable-text tbody tr td .dashicons-no').click(function() {
                                         $(this).parent().parent().remove();
@@ -52,7 +55,9 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                                 });
                         };
                         
-                        tf_repeatable_text_renumber = function(){$('.tf-repeatable-text tbody tr').each( 
+                        //Renumber all the labels and 'name' attributes of the inputs of the repeatable text fields 
+                        tf_repeatable_text_renumber = function(){
+                                $('.tf-repeatable-text tbody tr').each( 
                                         function( index ){
                                                 var $this = $(this);
                                                 var id = $this.attr('tf-repeatable-text-id');
@@ -63,8 +68,10 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                         };
                         
                         
+                        //Binds the actions to the click events when the DOM is ready.
                         tf_repeatable_text_init();
                         
+                        //Adds a new field when the button is clicked.
                         $('.tf-repeatable-text-button').click(
                                 function(){
                                         var $this = $(this);
@@ -104,18 +111,25 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                 $maxlength = $this->settings['maxlength'];
                 $value = $this->getValue();
                 $unit = $this->settings['unit'];
+                $field_name = $this->settings['field_label'];
                 
 		$this->echoOptionHeader();
                 $this->openFormTable();
                 
+                if (empty($value)){
+                        $value = array(
+                            ''
+                        );
+                }
+                        
                 foreach ($value as $index => $val):
-                
+
                         $meta_key = $this->getID() . "[$index]";
-                
+
                         ?>
                         <tr valign="top" tf-repeatable-text-id="<?php echo $ID; ?>">
                                 <th scope="row">
-                                        <label for="<?php echo $meta_key;?>">Field <?php echo $index + 1;?></label>
+                                        <label for="<?php echo $meta_key;?>"><?php echo $field_name . ' ' . ($index + 1);?></label>
                                 </th>
                                 <td>
                                         <?php
@@ -132,14 +146,26 @@ class TitanFrameworkOptionRepeatableText extends TitanFrameworkOption {
                                         <div class="dashicons dashicons-no" style="font-size: 30px; cursor: pointer; margin-left: 20px;"></div>
                                 </td>
                         </tr>
-                <?php
-                
+                        <?php
+
                 endforeach;
-                
+                        
                 ?>
                 
                 <tr valign="top">
-                    <td><a class="button tf-repeatable-text-button"  tf-repeatable-text-id="<?php echo $ID; ?>" tf-repeatable-text-index="<?php echo $index; ?>" tf-repeatable-text-placeholder="<?php echo $this->settings['placeholder']; ?>" tf-repeatable-text-type="<?php echo $this->settings['is_password'] ? 'password' : 'text' ?>" tf-repeatable-text-maxlength="<?php echo $this->settings['maxlength']; ?>" tf-repeatable-text-unit="<?php echo $this->settings['unit']; ?>">Add Text Field</a></td>
+                        <td>
+                                <a 
+                                        class="button tf-repeatable-text-button"  
+                                        tf-repeatable-text-id="<?php echo $ID; ?>" 
+                                        tf-repeatable-text-index="<?php echo $index; ?>" 
+                                        tf-repeatable-text-placeholder="<?php echo $this->settings['placeholder']; ?>" 
+                                        tf-repeatable-text-type="<?php echo $this->settings['is_password'] ? 'password' : 'text' ?>" 
+                                        tf-repeatable-text-maxlength="<?php echo $this->settings['maxlength']; ?>" 
+                                        tf-repeatable-text-unit="<?php echo $this->settings['unit']; ?>"
+                                >
+                                        Add Text Field
+                                </a>
+                        </td>
                 </tr>
                 
                 <?php
